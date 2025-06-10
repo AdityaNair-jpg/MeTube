@@ -3,7 +3,7 @@ import './globals.css'; // Import your global CSS file
 import type { Metadata } from 'next'; // Optional: for defining metadata
 import { HomeNavbar } from '@/modules/home/ui/components/home-navbar'; // Import your HomeNavbar component
 import { SidebarProvider } from "@/components/ui/sidebar"; // <--- ADD THIS IMPORT! (Adjust path if necessary)
-
+import { HomeSidebar } from '@/modules/home/ui/components/home-sidebar';
 // Define metadata for your entire application
 export const metadata: Metadata = {
   title: 'MeTube App', // Your app's title
@@ -25,6 +25,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         */}
         <SidebarProvider> {/* <--- WRAP CONTENT WITH SIDEBARPROVIDER */}
           <HomeNavbar />
+          <HomeSidebar />
           <main>
             {children}
           </main>
