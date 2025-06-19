@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'; 
-import { HomeLayout } from '@/modules/home/ui/layouts/home-layout';
+import { StudioLayout } from '@/modules/studio/ui/layouts/studio-layout';
 
 export const metadata: Metadata = {
   title: 'MeTube App', 
@@ -12,8 +12,8 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <HomeLayout>
+    <StudioLayout>
             {children}
-  </HomeLayout>
+  </StudioLayout>
   );
 }
