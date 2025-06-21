@@ -1,5 +1,6 @@
 "use client";
 
+import { ResponsiveModal } from "@/components/responsive-modal";
 import { Button } from "@/components/ui/button"
 import { trpc } from "@/trpc/client";
 import { error } from "console";
@@ -19,9 +20,18 @@ export const StudioUploadModal = () => {
     });
     
     return(
+        <>
+        <ResponsiveModal
+        title="Upload a video"
+        open
+        onOpenChange={() => create.reset()}
+        >
+            <p>Uploader</p>
+        </ResponsiveModal>
         <Button variant = "secondary" onClick={() => create.mutate()} disabled={create.isPending}>
             {create.isPending ? <Loader2Icon className="animate-spin"/> : <PlusIcon />}
             Create
         </Button>
+        </>
     );
 };
