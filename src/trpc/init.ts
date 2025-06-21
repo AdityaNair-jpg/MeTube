@@ -6,12 +6,18 @@ import { auth } from "@clerk/nextjs/server";
 import superjson from "superjson";
 import { db } from '@/db';
 import { ratelimit } from '@/lib/ratelimit';
+import { headers } from 'next/headers';
 
 export const createTRPCContext = cache(async () => {
-    const { userId } = await auth();
+  const { userId } = await auth();
+  
+  if (!userId) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
 
-    return { clerkUserId: userId};
+  return { clerkUserId: userId };
 });
+
 
 
 export type Context = Awaited <ReturnType<typeof createTRPCContext>>;
@@ -26,7 +32,6 @@ export const createCallerFactory = t.createCallerFactory;
 export const baseProcedure = t.procedure;
 
 
-
 export const protectedProcedure = t.procedure.use(async function isAuthed(opts){
     const { ctx } = opts;
 
@@ -37,7 +42,7 @@ export const protectedProcedure = t.procedure.use(async function isAuthed(opts){
     const [user] = await db
         .select()
         .from(users)
-        .where(eq(users.id, ctx.clerkUserId))
+        .where(eq(users.clerkId, ctx.clerkUserId))
         .limit(1);
 
     if (!user) {

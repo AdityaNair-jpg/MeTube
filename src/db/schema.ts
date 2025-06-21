@@ -10,7 +10,7 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (t) => [uniqueIndex("clerk_id_idx").on(t.clerkId)]);
 
-const userRelations = relations(users, ({many}) => ({
+export const userRelations = relations(users, ({many}) => ({
   videos: many(videos),
 }));
 
@@ -21,6 +21,10 @@ export const categories = pgTable("categories", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (t) => [uniqueIndex("name_idx").on(t.name)]);
+
+export const categoryRelations = relations(users, ({many}) => ({
+  videos: many(videos),
+}));
 
 export const videos = pgTable("videos", {
   id: uuid("id").primaryKey().defaultRandom(),
