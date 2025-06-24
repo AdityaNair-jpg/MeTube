@@ -21,6 +21,7 @@ import { snakeCaseToTitle } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { THUMBNAIL_FALLBACK } from "@/modules/videos/constants";
+import { ThumbanilUploadModal } from "../components/thumbnail-upload-modal";
 
 interface FormSectionProps {
     videoId: string;
@@ -47,10 +48,14 @@ const FormSectionSkeleton = () => {
 
 const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
     const router = useRouter();
+    const utils = trpc.useUtils();
+
+    const [thumbnailModalOpen, setThumbnailOpen] = useState(false);
+
     const [video] = trpc.studio.getOne.useSuspenseQuery({ id: videoId });
     const [categories] = trpc.categories.getMany.useSuspenseQuery();
 
-    const utils = trpc.useUtils();
+    
 
     const update = trpc.videos.update.useMutation({
         onSuccess: () => {
@@ -96,6 +101,12 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
     };
 
     return(
+        <>
+        <ThumbanilUploadModal 
+            open={thumbnailModalOpen}
+            onOpenChange={setThumbnailOpen}
+            videoId={videoId}
+        />
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex items-center justify-between mb-6">
@@ -193,7 +204,7 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="start" side="right">
-                                            <DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => setThumbnailOpen(true)}>
                                                 <ImagePlayIcon className="size-4 mr-1"/>
                                                 Change
                                             </DropdownMenuItem>
@@ -343,5 +354,6 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
         </div>
         </form>
         </Form>
+        </>
     );
 };
