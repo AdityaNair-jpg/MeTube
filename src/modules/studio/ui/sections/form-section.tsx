@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/trpc/client";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +12,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Form, FormControl, FormField, FormLabel, FormMessage, FormItem } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVerticalIcon, TrashIcon } from "lucide-react";
+import { CopyCheckIcon, CopyIcon, MoreVerticalIcon, TrashIcon } from "lucide-react";
 import { videoUpdateSchema } from "@/db/schema";
 import { toast } from "sonner";
 import { VideoPlayer } from "@/modules/videos/ui/components/video-player";
@@ -66,6 +66,18 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
     const onSubmit = (data: z.infer<typeof videoUpdateSchema>) => {
         update.mutateAsync(data);
     }
+
+    const fullUrl = `${process.env.VERCEL_URL || "http://localhost:3000"}/videos/${videoId}`;
+    const [isCopied, setIsCopied] = useState(false);
+
+    const onCopy = async () => {
+        await navigator.clipboard.writeText(fullUrl);
+        setIsCopied(true);
+
+        setTimeout(() => {
+            setIsCopied(false);
+        }, 2000);
+    };
 
     return(
         <Form {...form}>
@@ -187,6 +199,16 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                                         http://localhost:3000/123
                                     </p>
                                     </Link>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="shrink-0"
+                                        onClick={onCopy}
+                                        disabled={isCopied}
+                                    >
+                                        {isCopied ? <CopyCheckIcon /> : <CopyIcon />}
+                                    </Button>
                                 </div>
                             </div>
 
