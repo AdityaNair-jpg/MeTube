@@ -12,13 +12,15 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Form, FormControl, FormField, FormLabel, FormMessage, FormItem } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { CopyCheckIcon, CopyIcon, Globe2Icon, LockIcon, MoreVerticalIcon, TrashIcon } from "lucide-react";
+import { CopyCheckIcon, CopyIcon, Globe2Icon, ImagePlayIcon, LockIcon, MoreVerticalIcon, RotateCcwIcon, SparklesIcon, TrashIcon } from "lucide-react";
 import { videoUpdateSchema } from "@/db/schema";
 import { toast } from "sonner";
 import { VideoPlayer } from "@/modules/videos/ui/components/video-player";
 import Link from "next/link";
 import { snakeCaseToTitle } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { THUMBNAIL_FALLBACK } from "@/modules/videos/constants";
 
 interface FormSectionProps {
     videoId: string;
@@ -162,6 +164,56 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                     </FormItem>
                 )}
                 />
+
+                <FormField 
+                    name="thumbnailUrl"
+                    control={form.control}
+                    render={() => (
+                        <FormItem>
+                            <FormLabel>Thumbnail</FormLabel>
+                            <FormControl>
+                                <div className="p-0.5 border border-dashed border-neutral-400 relative h-[84px] w-[153px] group">
+                                    <Image 
+                                        src={video.thumbnailUrl || THUMBNAIL_FALLBACK}
+                                        className="object-cover"
+                                        fill
+                                        alt="Thumbnail"
+                                    />
+
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger>
+                                            <Button
+                                                type="button"
+                                                size="icon"
+                                                className="bg-black/50 hover:bg-black/50 absolute top-1 right-1
+                                                rounded-full opacity-100 md:opacity-0 group-hover:opacity-100
+                                                duration-300 size-7"
+                                            >
+                                                <MoreVerticalIcon className="text-white" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="start" side="right">
+                                            <DropdownMenuItem>
+                                                <ImagePlayIcon className="size-4 mr-1"/>
+                                                Change
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                <SparklesIcon className="size-4 mr-1"/>
+                                                AI-Generated
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                <RotateCcwIcon className="size-4 mr-1"/>
+                                                Restore
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+
+                                </div>
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+
                 <FormField
                 control={form.control}
                 name="categoryId"
