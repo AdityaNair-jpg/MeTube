@@ -12,11 +12,13 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Form, FormControl, FormField, FormLabel, FormMessage, FormItem } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { CopyCheckIcon, CopyIcon, MoreVerticalIcon, TrashIcon } from "lucide-react";
+import { CopyCheckIcon, CopyIcon, Globe2Icon, LockIcon, MoreVerticalIcon, TrashIcon } from "lucide-react";
 import { videoUpdateSchema } from "@/db/schema";
 import { toast } from "sonner";
 import { VideoPlayer } from "@/modules/videos/ui/components/video-player";
 import Link from "next/link";
+import { snakeCaseToTitle } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 interface FormSectionProps {
     videoId: string;
@@ -42,6 +44,7 @@ const FormSectionSkeleton = () => {
 }
 
 const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
+    const router = useRouter();
     const [video] = trpc.studio.getOne.useSuspenseQuery({ id: videoId });
     const [categories] = trpc.categories.getMany.useSuspenseQuery();
 
@@ -52,6 +55,17 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
             utils.studio.getMany.invalidate();
             utils.studio.getOne.invalidate({ id: videoId });
             toast.success("Video Updated");
+        },
+        onError: () => {
+            toast.error("Something went wrong.");
+        }
+    });
+
+    const remove = trpc.videos.remove.useMutation({
+        onSuccess: () => {
+            utils.studio.getMany.invalidate();
+            toast.success("Video removed");
+            router.push("/studio");
         },
         onError: () => {
             toast.error("Something went wrong.");
@@ -98,7 +112,7 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => remove.mutate({ id: videoId })}>
                             <TrashIcon className="size-4 mr-2"/>
                             Delete
                         </DropdownMenuItem>
@@ -196,7 +210,7 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                                 <div className="flex items-center gap-x-2">
                                     <Link href={`/videos/${video.id}`}>
                                     <p className="line-clamp-1 text-sm text-blue-500">
-                                        http://localhost:3000/123
+                                       {fullUrl}
                                     </p>
                                     </Link>
                                     <Button
@@ -213,10 +227,66 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                             </div>
 
                         </div>
+                        <div className="flex justify-between items-center">
+                            <div className="flex flex-col gap-y-1">
+                            <p className="text-muted-foreground text-xs">
+                                Video Status
+                            </p>
+                            <p className="text-sm">
+                                {snakeCaseToTitle(video.muxStatus || "preparing")}
+                            </p>
+                            </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <div className="flex flex-col gap-y-1">
+                            <p className="text-muted-foreground text-xs">
+                                Subtitles Status
+                            </p>
+                            <p className="text-sm">
+                                {snakeCaseToTitle(video.muxTrackStatus || "np_subtitles")}
+                            </p>
+                            </div>
+                        </div>
 
                     </div>
 
                 </div>
+
+                    <FormField
+                control={form.control}
+                name="visibility"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>
+                            Visibility
+                        </FormLabel>
+                        <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value ?? undefined}
+                        >
+                        <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select Visibility" />
+                            </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                            
+                            <SelectItem value="public">
+                                <Globe2Icon className="size-4 mr-2" />
+                                Public
+                            </SelectItem>
+                            <SelectItem value="private">
+                                <LockIcon className="size-4 mr-2" />
+                                Private
+                            </SelectItem>
+                        </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                )}
+                />
+
+
             </div>
         </div>
         </form>
