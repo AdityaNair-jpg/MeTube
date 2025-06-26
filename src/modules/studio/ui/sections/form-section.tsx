@@ -201,6 +201,7 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                                         className="object-cover"
                                         fill
                                         alt="Thumbnail"
+                                        unoptimized
                                     />
 
                                     <DropdownMenu>
