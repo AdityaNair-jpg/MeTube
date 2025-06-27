@@ -12,7 +12,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Form, FormControl, FormField, FormLabel, FormMessage, FormItem } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { CopyCheckIcon, CopyIcon, Globe2Icon, ImagePlayIcon, LockIcon, MoreVerticalIcon, RotateCcwIcon, SparklesIcon, TrashIcon } from "lucide-react";
+import { CopyCheckIcon, CopyIcon, Globe2Icon, ImagePlayIcon, Loader2Icon, LockIcon, MoreVerticalIcon, RotateCcwIcon, SparklesIcon, TrashIcon } from "lucide-react";
 import { videoUpdateSchema } from "@/db/schema";
 import { toast } from "sonner";
 import { VideoPlayer } from "@/modules/videos/ui/components/video-player";
@@ -90,6 +90,26 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
             toast.error("Something went wrong.");
         }
     });
+
+    const generateTitle = trpc.videos.generateTitle.useMutation({
+        onSuccess: () => {
+            toast.success("Background Job started", { description: "This may take some time"});
+            router.push("/studio");
+        },
+        onError: () => {
+            toast.error("Something went wrong.");
+        }
+    });
+
+    const generateThumbnail = trpc.videos.generateThumbnail.useMutation({
+        onSuccess: () => {
+            toast.success("Background Job started", { description: "This may take some time"});
+            router.push("/studio");
+        },
+        onError: () => {
+            toast.error("Something went wrong.");
+        }
+    });
     
     const form = useForm<z.infer<typeof videoUpdateSchema>>({
         resolver: zodResolver(videoUpdateSchema),
@@ -153,7 +173,22 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel>
-                            Title
+                            <div className="flex items-center gap-x-2">
+                                Title
+                                <Button
+                                    size="icon"
+                                    variant="outline"
+                                    type="button"
+                                    className="rounded-full size-6 [&_svg]:size-3"
+                                    onClick={() => generateTitle.mutate({ id: videoId})}
+                                    disabled={generateTitle.isPending}
+                                >
+                                    {generateTitle.isPending
+                                        ? <Loader2Icon className="animate-spin"/>
+                                        : <SparklesIcon />
+                                    }
+                                </Button>
+                            </div>
                         </FormLabel>
                         <FormControl>
                             <Input
@@ -221,7 +256,9 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                                                 <ImagePlayIcon className="size-4 mr-1"/>
                                                 Change
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                onClick={() => generateThumbnail.mutate({ id: videoId })}
+                                            >
                                                 <SparklesIcon className="size-4 mr-1"/>
                                                 AI-Generated
                                             </DropdownMenuItem>
