@@ -1,7 +1,7 @@
-export const SuggestionsSection = () => {
+export const CommentsSection = () => {
     return (
         <div>
-            Suggestions
+            Comments
         </div>
     )
 }
