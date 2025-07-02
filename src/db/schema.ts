@@ -2,6 +2,8 @@ import { pgTable, uuid, text, timestamp, uniqueIndex, integer, pgEnum, primaryKe
 import { relations } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod";
 import { duration } from "drizzle-orm/gel-core";
+import { time } from "console";
+import { subscribe } from "diagnostics_channel";
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -15,7 +17,9 @@ export const users = pgTable("users", {
 export const userRelations = relations(users, ({many}) => ({
   videos: many(videos),
   videoViews: many(videoViews),
-  videoReactions: many(videoReactions)
+  videoReactions: many(videoReactions),
+  subscriptions: many(subscriptions),
+  subscribers: many(subscriptions)
 }));
 
 export const categories = pgTable("categories", {
@@ -120,6 +124,25 @@ export const videoReactions = pgTable("video_reactions", {
     columns: [t.userId, t.videoId],
   }),
 ]);
+
+export const subscriptions = pgTable("subscriptions", {
+  viewerId: uuid("viewer_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  creatorId: uuid("creator_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  createdAt: timestamp("updated_at").defaultNow().notNull(),  
+});
+
+export const subscriptionRelations = relations(subscriptions, ({ one }) => ({
+  viewerId: one(users, {
+    fields: [subscriptions.viewerId],
+    references: [users.id],
+    relationName: "subscription_viewer_id_key"
+  }),
+  creatorId: one(users, {
+    fields: [subscriptions.creatorId],
+    references: [users.id],
+    relationName: "subscriptions_creator_id_key"
+  })
+}));
 
 export const videoReactionRelations = relations(videoReactions, ({ one }) => ({
   users: one(users, {
