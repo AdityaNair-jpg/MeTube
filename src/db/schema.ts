@@ -21,7 +21,7 @@ export const userRelations = relations(users, ({many}) => ({
   subscriptions: many(subscriptions, {
     relationName: "subscription_viewer_id_fkey"
   }),
-  subscribers: many(subscriptions, {
+  subscribers: many(subscriptions, {  
     relationName: "subscription_creator_id_fkey"
   })
 }));
