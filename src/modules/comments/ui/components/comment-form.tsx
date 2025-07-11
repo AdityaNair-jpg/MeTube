@@ -30,6 +30,7 @@ export const CommentForm = ({
             toast.success("Comment added");
             onSuccess?.();
         },
+        
         onError: (error) => {
             toast.error("Something went wrong");
 
